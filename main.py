@@ -14,15 +14,19 @@ algorithms = {
 }
 
 def start_algorithm(send, app_data, user_data: AlgorithmVisualizer):    
-    start_node = (dpg.get_value('startX'), dpg.get_value('startY'))
-    goal_node = (dpg.get_value('endX'), dpg.get_value('endY'))
-    user_data.setStartEnd(start=start_node, end=goal_node)
+    # start_XY = (dpg.get_value('startX'), dpg.get_value('startY'))
+    # goal_XY = (dpg.get_value('endX'), dpg.get_value('endY'))
+    # user_data.setStart(start=start_XY)
+    # user_data.setEnd(end=goal_XY)
+
     
     combo_choice = dpg.get_value('algorithm_choice')
     if (combo_choice == algorithms['A*']):
         a_star(plot=user_data)
         
-def clear_walls(send, app_data, user_data: AlgorithmVisualizer):
+def reset_plot(send, app_data, user_data: AlgorithmVisualizer):
+    user_data.setStart(None)
+    user_data.setEnd(None)
     user_data.clearObstacleList()
     dpg.delete_item(user_data.plot, children_only=True, slot=2)
 
@@ -58,13 +62,13 @@ with dpg.window(tag="main_window"):
                 dpg.add_spacer(height=10)
                 dpg.add_text("Algorithm: ")
                 dpg.add_combo([text for key, text in algorithms.items()], tag='algorithm_choice')
-                # Stard & End
+                # Start & End XY Buttons
                 dpg.add_spacer(height=10)
                 start_end_positions()
                 # Reset Walls & Start
                 dpg.add_spacer(height=10)
                 with dpg.group(horizontal=True):
-                    dpg.add_button(label="Reset Walls", callback=clear_walls, user_data=plot_canvas)
+                    dpg.add_button(label="Reset Plot", callback=reset_plot, user_data=plot_canvas)
                     dpg.add_button(label="Start", callback=start_algorithm, user_data=plot_canvas)
 
 

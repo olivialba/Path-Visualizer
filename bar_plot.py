@@ -12,8 +12,10 @@ class AlgorithmVisualizer():
     def __init__(self):
         self.plot = self._createPlot()
 
-        self.start = ()
-        self.end = ()
+        self.start = None
+        self.start_square = None
+        self.end = None
+        self.end_square = None
         self.obstacles = []
         self.array = [
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -29,7 +31,7 @@ class AlgorithmVisualizer():
             ]
         
         self._createTheme()
-        self._leftClickHandler()
+        self._clickHandler()
         
         
     def _createPlot(self):
@@ -42,28 +44,40 @@ class AlgorithmVisualizer():
         dpg.set_axis_limits(axis=y_axis, ymin=0, ymax=self.size)
         return plot
     
-    def setStartEnd(self, start: tuple = None, end: tuple = None):
-        if start:
+    # Methods
+    
+    def setStart(self, start: tuple = None):
+        if start is None:
+            dpg.delete_item(self.start_square)
+            self.start_square = None
+            self.start = None
+        else:
+            self.start_square = self.drawSquare(start, self.green, need_return=True)
             self.start = start
-        if end:
+        
+    def setEnd(self, end: tuple = None):
+        if end is None:
+            dpg.delete_item(self.end_square)
+            self.end_square = None
+            self.end = None
+        else:
+            self.end_square = self.drawSquare(end, self.white, need_return=True)
             self.end = end
     
-    def setObstacle(self, mouse_pos):
-        x = (int)(mouse_pos[0] / 5)
-        y = (int)(mouse_pos[1] / 5) 
-        self.drawSquare((x, y), self.gray)
-        self.obstacles.append((x, y))
-    
-    def clickAddObstacle(self):
-        """
-        Callback of `_leftClickHandler` when `mvMouseButton_Left`.
-        """
-        if (dpg.is_item_clicked(self.plot)):
-            mouse_pos = dpg.get_plot_mouse_pos()
-            self.setObstacle(mouse_pos)
-    
+    def setObstacle(self, XY):
+        self.drawSquare(XY, self.gray)
+        self.obstacles.append(XY)
+        
     def clearObstacleList(self):
         self.obstacles.clear()
+    
+    def mousePlotPosToXY(self, mouse_pos):
+        """
+        Returns a tuple `(x, y)` of the PLOT mouse position.
+        """
+        x = (int)(mouse_pos[0] / 5)
+        y = (int)(mouse_pos[1] / 5) 
+        return (x, y)
     
     # Drawing in the plot
     
@@ -72,14 +86,18 @@ class AlgorithmVisualizer():
         Delete all drawn items in the plot and then draw the `start`, `end` and each `obstacle` in the obstacles list.
         """
         dpg.delete_item(self.plot, children_only=True, slot=2)
-        self.drawSquare(self.start, self.green)
-        self.drawSquare(self.end, self.white)
+        self.start_square = self.drawSquare(self.start, self.green, need_return=True)
+        self.end_square = self.drawSquare(self.end, self.white, need_return=True)
         for obstacle_xy in self.obstacles:
             self.drawSquare(obstacle_xy, self.gray)
     
-    def drawSquare(self, xy: tuple, colorRGB: list = [0, 0, 0], thick = 0):
+    def drawSquare(self, xy: tuple, colorRGB: list = [0, 0, 0], thick = 0, need_return: bool = None):
         x, y = xy
-        dpg.draw_rectangle(parent=self.plot, pmin=[x*5, y*5], pmax=[(x*5)+5, (y*5)+5], color=colorRGB, fill=colorRGB, thickness=thick)
+        square = dpg.draw_rectangle(parent=self.plot, pmin=[x*5, y*5], pmax=[(x*5)+5, (y*5)+5], color=colorRGB, fill=colorRGB, thickness=thick)
+        if need_return:
+            return square
+        else:
+            return None
         
     def drawText(self, text: str, xy: tuple, size: int = 5):
         x, y = xy
@@ -87,9 +105,39 @@ class AlgorithmVisualizer():
 
     # Themes and Handlers
     
-    def _leftClickHandler(self):
+    def _clickAdd_Obstacle(self):
+        """
+        Callback of `_clickHandler` when `mvMouseButton_Left`.
+        """
+        if (dpg.is_item_clicked(self.plot)):
+            mouse_pos = dpg.get_plot_mouse_pos()
+            xy = self.mousePlotPosToXY(mouse_pos)
+            self.setObstacle(xy)
+            
+    def _clickAdd_StartEnd(self):
+        """
+        Callback of `_clickHandler` when `mvMouseButton_Right`.
+        """
+        if (dpg.is_item_clicked(self.plot)):
+            mouse_pos = dpg.get_plot_mouse_pos()
+            xy = self.mousePlotPosToXY(mouse_pos)
+            
+            if xy == self.start:
+                self.setStart(None)
+            elif xy == self.end:
+                self.setEnd(None)
+            elif self.start is None:
+                self.setStart(xy)
+            elif self.end is None:
+                self.setEnd(xy)
+            
+            print(f"Start: {self.start}")
+            print(f"End: {self.end}\n")
+    
+    def _clickHandler(self):
         with dpg.handler_registry():
-            dpg.add_mouse_click_handler(button=dpg.mvMouseButton_Left, callback=self.clickAddObstacle)
+            dpg.add_mouse_click_handler(button=dpg.mvMouseButton_Left, callback=self._clickAdd_Obstacle)
+            dpg.add_mouse_click_handler(button=dpg.mvMouseButton_Right, callback=self._clickAdd_StartEnd)
 
     def _createTheme(self):
         with dpg.theme() as plot_style:

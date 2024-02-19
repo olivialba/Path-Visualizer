@@ -87,8 +87,8 @@ def a_star(plot: AlgorithmVisualizer):
     goal_xy = plot.end
     
     plot.drawAllSquares()
-    plot.drawText("Start", xy=(start_xy[0]*5 + 0.2, (start_xy[1]*5) + 3.5), size=1.7)
-    plot.drawText("Goal", xy=(goal_xy[0]*5 + 0.7, (goal_xy[1]*5) + 3.5), size=1.7)
+    # plot.drawText("Start", xy=(start_xy[0]*5 + 0.2, (start_xy[1]*5) + 3.5), size=1.7)
+    # plot.drawText("Goal", xy=(goal_xy[0]*5 + 0.7, (goal_xy[1]*5) + 3.5), size=1.7)
     search_array = copy.deepcopy(plot.array)
     for obstacle in plot.obstacles:
         x, y = obstacle
@@ -117,7 +117,6 @@ def a_star(plot: AlgorithmVisualizer):
             break
         generateNeighbors(current_node, goal_xy, open_list, closed_list, search_array)
         closed_list[current_node.ids] = current_node
-    print_array(search_array)
     
     path = findPath(current_node)
     path.reverse()
