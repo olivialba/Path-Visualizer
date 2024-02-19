@@ -76,8 +76,11 @@ def findPath(node):
         check_node = check_node.parent
     return path
 
-def a_star(plot: AlgorithmVisualizer, start_xy, goal_xy):
-    plot.paintAllSquares()
+def a_star(plot: AlgorithmVisualizer):
+    start_xy = plot.start
+    goal_xy = plot.end
+    
+    plot.drawAllSquares()
     plot.drawText("Start", xy=(start_xy[0]*5 + 0.2, (start_xy[1]*5) + 3.5), size=1.7)
     plot.drawText("Goal", xy=(goal_xy[0]*5 + 0.7, (goal_xy[1]*5) + 3.5), size=1.7)
     search_array = copy.deepcopy(plot.array)
@@ -116,5 +119,5 @@ def a_star(plot: AlgorithmVisualizer, start_xy, goal_xy):
         final_path += " -> " if node != path[-1] else ""
         time.sleep(0.5)
         if (node.xy != start_xy and node.xy != goal_xy):
-            plot.blueSquare(node.xy)
+            plot.drawSquare(node.xy, plot.blue)
     print(final_path)

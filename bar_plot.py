@@ -1,6 +1,4 @@
 import dearpygui.dearpygui as dpg
-import DearPyGui_DragAndDrop as dpg_dnd
-
 
 class AlgorithmVisualizer():
     size = 50
@@ -12,92 +10,88 @@ class AlgorithmVisualizer():
     white = [255, 250, 250]
     
     def __init__(self):
-        self._CreatePlot()
-        self.array = [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-        self.obstacles = []
+        self.plot = self._createPlot()
+
         self.start = ()
         self.end = ()
+        self.obstacles = []
+        self.array = [
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            ]
         
-    def _CreatePlot(self):
-        self.plot = dpg.add_plot(label="Algorithm",width=self.size * 10, height=self.size * 10, 
+        self._createTheme()
+        self._leftClickHandler()
+        
+        
+    def _createPlot(self):
+        plot = dpg.add_plot(label="Algorithm",width=self.size * 10, height=self.size * 10, 
                       no_title=True, no_menus=True, no_mouse_pos=False, no_box_select=True, equal_aspects=True)
-        x_axis = dpg.add_plot_axis(dpg.mvXAxis, parent=self.plot, label="", no_tick_labels=True, no_tick_marks=True, lock_min=True, no_gridlines=False)
-        y_axis = dpg.add_plot_axis(dpg.mvYAxis, parent=self.plot, label="", no_tick_labels=True, no_tick_marks=True, lock_min=True, no_gridlines=False)
+        x_axis = dpg.add_plot_axis(dpg.mvXAxis, parent=plot, label="", no_tick_labels=True, no_tick_marks=True, lock_min=True, no_gridlines=False)
+        y_axis = dpg.add_plot_axis(dpg.mvYAxis, parent=plot, label="", no_tick_labels=True, no_tick_marks=True, lock_min=True, no_gridlines=False)
 
         dpg.set_axis_limits(axis=x_axis, ymin=0, ymax=self.size)
         dpg.set_axis_limits(axis=y_axis, ymin=0, ymax=self.size)
-        self._CreateTheme()
-        self.leftClick()
+        return plot
     
-    def setSquares(self, start: tuple = None, end: tuple = None):
+    def setStartEnd(self, start: tuple = None, end: tuple = None):
         if start:
             self.start = start
         if end:
             self.end = end
     
-    def leftClick(self):
-        with dpg.handler_registry() as mouse_handler:
-            m_click_left = dpg.add_mouse_click_handler(button=dpg.mvMouseButton_Left, callback=self.clickPlot, )
-            
-    def clickPlot(self):
+    def setObstacle(self, mouse_pos):
+        x = (int)(mouse_pos[0] / 5)
+        y = (int)(mouse_pos[1] / 5) 
+        self.drawSquare((x, y), self.gray)
+        self.obstacles.append((x, y))
+    
+    def clickAddObstacle(self):
+        """
+        Callback of `_leftClickHandler` when `mvMouseButton_Left`.
+        """
         if (dpg.is_item_clicked(self.plot)):
             mouse_pos = dpg.get_plot_mouse_pos()
             self.setObstacle(mouse_pos)
     
-    def setObstacle(self, mouse_pos):
-        x = (int)(mouse_pos[0] / 5)
-        y = (int)(mouse_pos[1] / 5) 
-        self.graySquare((x, y))
-        self.obstacles.append((x, y))
-    
-    def resetWalls(self):
+    def clearObstacleList(self):
         self.obstacles.clear()
     
-    def paintAllSquares(self):
+    # Drawing in the plot
+    
+    def drawAllSquares(self):
+        """ 
+        Delete all drawn items in the plot and then draw the `start`, `end` and each `obstacle` in the obstacles list.
+        """
         dpg.delete_item(self.plot, children_only=True, slot=2)
-        self.greenSquare(self.start)
-        self.whiteSquare(self.end)
+        self.drawSquare(self.start, self.green)
+        self.drawSquare(self.end, self.white)
         for obstacle_xy in self.obstacles:
-            self.graySquare(obstacle_xy)
+            self.drawSquare(obstacle_xy, self.gray)
     
-    def blueSquare(self, xy: tuple):
-        self.colorSquare(xy, colorRGB=self.blue)
-
-    def redSquare(self, xy: tuple):
-        self.colorSquare(xy, colorRGB=self.red)
-    
-    def yellowSquare(self, xy: tuple):
-        self.colorSquare(xy, colorRGB=self.yellow)
-        
-    def greenSquare(self, xy: tuple):
-        self.colorSquare(xy, colorRGB=self.green)
-        
-    def graySquare(self, xy: tuple):
-        self.colorSquare(xy, colorRGB=self.gray)
-        
-    def whiteSquare(self, xy: tuple):
-        self.colorSquare(xy, colorRGB=self.white)
-
-    def colorSquare(self, xy: tuple, colorRGB: list = [0, 0, 0], thick = 0):
+    def drawSquare(self, xy: tuple, colorRGB: list = [0, 0, 0], thick = 0):
         x, y = xy
         dpg.draw_rectangle(parent=self.plot, pmin=[x*5, y*5], pmax=[(x*5)+5, (y*5)+5], color=colorRGB, fill=colorRGB, thickness=thick)
         
     def drawText(self, text: str, xy: tuple, size: int = 5):
         x, y = xy
         dpg.draw_text(parent=self.plot, text=text, pos=[x, y], size=size)
-                
-    def _CreateTheme(self):
+
+    # Themes and Handlers
+    
+    def _leftClickHandler(self):
+        with dpg.handler_registry():
+            dpg.add_mouse_click_handler(button=dpg.mvMouseButton_Left, callback=self.clickAddObstacle)
+
+    def _createTheme(self):
         with dpg.theme() as plot_style:
             with dpg.theme_component(dpg.mvPlot):
                 dpg.add_theme_style(dpg.mvPlotStyleVar_PlotPadding, 0, 0, category=dpg.mvThemeCat_Plots)
