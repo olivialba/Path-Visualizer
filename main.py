@@ -14,12 +14,6 @@ algorithms = {
 }
 
 def start_algorithm(send, app_data, user_data: AlgorithmVisualizer):    
-    # start_XY = (dpg.get_value('startX'), dpg.get_value('startY'))
-    # goal_XY = (dpg.get_value('endX'), dpg.get_value('endY'))
-    # user_data.setStart(start=start_XY)
-    # user_data.setEnd(end=goal_XY)
-
-    
     combo_choice = dpg.get_value('algorithm_choice')
     if (combo_choice == algorithms['A*']):
         a_star(plot=user_data)
@@ -30,22 +24,14 @@ def reset_plot(send, app_data, user_data: AlgorithmVisualizer):
     user_data.clearObstacleList()
     dpg.delete_item(user_data.plot, children_only=True, slot=2)
 
-def start_end_positions():
-    dpg.add_text("Start position:")
-    with dpg.group(horizontal=True):
-        dpg.add_text("X: ", indent=20)
-        dpg.add_input_int(tag="startX", width=80, min_value=0, max_value=10, min_clamped=True, max_clamped=True)
-    with dpg.group(horizontal=True):
-        dpg.add_text("Y: ", indent=20)
-        dpg.add_input_int(tag="startY", width=80, min_value=0, max_value=10, min_clamped=True, max_clamped=True)
+def start_end_positions(plot: AlgorithmVisualizer):
+    dpg.add_text("Start Coordinate:", indent=10)
+    start_pos_text = dpg.add_text("None", indent=20)
     dpg.add_spacer(height=10)
-    dpg.add_text("End position:")
-    with dpg.group(horizontal=True):
-        dpg.add_text("X: ", indent=20)
-        dpg.add_input_int(tag="endX", width=80, min_value=0, max_value=10, min_clamped=True, max_clamped=True)
-    with dpg.group(horizontal=True):
-        dpg.add_text("Y: ", indent=20)
-        dpg.add_input_int(tag="endY", width=80, min_value=0, max_value=10, min_clamped=True, max_clamped=True)
+    dpg.add_text("End Coordinate:", indent=10)
+    end_pos_text = dpg.add_text("None", indent=20)
+    
+    plot._setTextValues(start_pos_text, end_pos_text)
 
 with dpg.window(tag="main_window"):
     with dpg.table(header_row=False, borders_innerH=True, borders_innerV=True, 
@@ -57,19 +43,21 @@ with dpg.window(tag="main_window"):
             plot_canvas = AlgorithmVisualizer()
             plot_graph = plot_canvas.plot
             
-            with dpg.group(before=plot_graph):
+            with dpg.group(before=plot_graph, indent=10):
                 # Algorithms ComboBox
                 dpg.add_spacer(height=10)
                 dpg.add_text("Algorithm: ")
                 dpg.add_combo([text for key, text in algorithms.items()], tag='algorithm_choice')
                 # Start & End XY Buttons
                 dpg.add_spacer(height=10)
-                start_end_positions()
+                start_end_positions(plot_canvas)
                 # Reset Walls & Start
                 dpg.add_spacer(height=10)
                 with dpg.group(horizontal=True):
                     dpg.add_button(label="Reset Plot", callback=reset_plot, user_data=plot_canvas)
                     dpg.add_button(label="Start", callback=start_algorithm, user_data=plot_canvas)
+                dpg.add_spacer(height=10)
+                dpg.add_text("", tag="error_message_plot", wrap=400)
 
 
 dpg.setup_dearpygui()

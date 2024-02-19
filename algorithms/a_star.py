@@ -86,9 +86,15 @@ def a_star(plot: AlgorithmVisualizer):
     start_xy = plot.start
     goal_xy = plot.end
     
+    if start_xy is None:
+        plot.errorMessage("* Start Coordinate is absent")
+        return
+    elif goal_xy is None:
+        plot.errorMessage("* End Coordinate is absent")
+        return
+    else:
+        plot.errorMessage("")
     plot.drawAllSquares()
-    # plot.drawText("Start", xy=(start_xy[0]*5 + 0.2, (start_xy[1]*5) + 3.5), size=1.7)
-    # plot.drawText("Goal", xy=(goal_xy[0]*5 + 0.7, (goal_xy[1]*5) + 3.5), size=1.7)
     search_array = copy.deepcopy(plot.array)
     for obstacle in plot.obstacles:
         x, y = obstacle
@@ -120,10 +126,13 @@ def a_star(plot: AlgorithmVisualizer):
     
     path = findPath(current_node)
     path.reverse()
-    for node in path:
+    for num, node in enumerate(path):
         final_path += f"({str(node.x)}, {str(node.y)})"
         final_path += " -> " if node != path[-1] else ""
+        if (num + 1) % 3 == 0:
+            final_path += "\n"
         time.sleep(0.5)
         if (node.xy != start_xy and node.xy != goal_xy):
             plot.drawSquare(node.xy, plot.blue)
+    plot.errorMessage(f"Path:\n{final_path}")
     print(final_path)

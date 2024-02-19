@@ -14,8 +14,12 @@ class AlgorithmVisualizer():
 
         self.start = None
         self.start_square = None
+        self.start_text = None
+
         self.end = None
         self.end_square = None
+        self.end_text = None
+        
         self.obstacles = []
         self.array = [
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -44,6 +48,8 @@ class AlgorithmVisualizer():
         dpg.set_axis_limits(axis=y_axis, ymin=0, ymax=self.size)
         return plot
     
+    def errorMessage(self, text):
+        dpg.set_value("error_message_plot", text)
     # Methods
     
     def setStart(self, start: tuple = None):
@@ -51,18 +57,22 @@ class AlgorithmVisualizer():
             dpg.delete_item(self.start_square)
             self.start_square = None
             self.start = None
+            dpg.set_value(self.start_text, "None")
         else:
             self.start_square = self.drawSquare(start, self.green, need_return=True)
             self.start = start
+            dpg.set_value(self.start_text, self.start)
         
     def setEnd(self, end: tuple = None):
         if end is None:
             dpg.delete_item(self.end_square)
             self.end_square = None
             self.end = None
+            dpg.set_value(self.end_text, "None")
         else:
             self.end_square = self.drawSquare(end, self.white, need_return=True)
             self.end = end
+            dpg.set_value(self.end_text, self.end)
     
     def setObstacle(self, XY):
         self.drawSquare(XY, self.gray)
@@ -105,6 +115,10 @@ class AlgorithmVisualizer():
 
     # Themes and Handlers
     
+    def _setTextValues(self, start_text, end_text):
+        self.start_text = start_text
+        self.end_text = end_text
+    
     def _clickAdd_Obstacle(self):
         """
         Callback of `_clickHandler` when `mvMouseButton_Left`.
@@ -130,9 +144,6 @@ class AlgorithmVisualizer():
                 self.setStart(xy)
             elif self.end is None:
                 self.setEnd(xy)
-            
-            print(f"Start: {self.start}")
-            print(f"End: {self.end}\n")
     
     def _clickHandler(self):
         with dpg.handler_registry():
