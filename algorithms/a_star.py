@@ -23,6 +23,12 @@ class A_Star_node():
         x, y = goal_node
         g = (abs(self.x - x) + abs(self.y - y)) * 10
         return g
+    
+def print_array(array):
+    for row in array:
+        for element in row:
+            print(element, end=" ")  # Use end=" " to print elements in the same row
+        print()
 
 def getBestNode(open_list):
     if not open_list:
@@ -62,7 +68,7 @@ def generateNeighbors(current_node, goal_xy, open_list, closed_list, array):
                 if closed_list.get(generated_node.ids):
                     continue
                 else:
-                    array[y_axis][x_axis] == 'N'
+                    array[y_axis][x_axis] = 2
                     open_list.append(generated_node)
 
 def findPath(node):
@@ -111,6 +117,7 @@ def a_star(plot: AlgorithmVisualizer):
             break
         generateNeighbors(current_node, goal_xy, open_list, closed_list, search_array)
         closed_list[current_node.ids] = current_node
+    print_array(search_array)
     
     path = findPath(current_node)
     path.reverse()
