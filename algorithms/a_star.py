@@ -1,6 +1,8 @@
 from algorithm_plot import AlgorithmVisualizer
 import copy, time
 
+side_of_array = 9
+
 class A_Star_node():
     def __init__(self, xy: tuple, diagonal: bool, goal_node: tuple, parent: object, is_start_node: tuple = False):
         x, y = xy
@@ -23,7 +25,7 @@ class A_Star_node():
         g = (abs(self.x - x) + abs(self.y - y)) * 10
         return g
     
-def print_array(array):
+def printArray(array):
     for row in array:
         for element in row:
             print(element, end=" ")  # Use end=" " to print elements in the same row
@@ -43,7 +45,7 @@ def getBestNode(open_list):
 def translateXYtoArray(xy: tuple, YX: bool = False) -> tuple:
     """Returns `(Y, X)` or `(X, Y)`"""
     x, y = xy
-    new_y = (y + 9 - (2 * y))
+    new_y = (y + side_of_array - (2 * y))
     if YX:
         return (new_y, x)
     else:
@@ -57,7 +59,7 @@ def generateNeighbors(current_node, goal_xy, open_list, closed_list, array):
                 continue
             y_axis = i + y
             x_axis = j + x
-            if y_axis < 0 or x_axis < 0 or y_axis > 9 or x_axis > 9:
+            if y_axis < 0 or x_axis < 0 or y_axis > side_of_array or x_axis > side_of_array:
                 continue
             if array[y_axis][x_axis] == 0:
                 diagonal = False
@@ -94,10 +96,13 @@ def A_star(plot: AlgorithmVisualizer):
         plot.errorMessage("")
     plot.drawAllSquares()
     
+    global side_of_array
+    side_of_array = plot.size - 1
+    
     search_array = copy.deepcopy(plot.array)
     for obstacle in plot.obstacles_list:
         x, y = obstacle
-        new_y = (y + 9 - (2 * y))
+        new_y = (y + side_of_array - (2 * y))
         search_array[new_y][x] = 1
     
     current_node = None
