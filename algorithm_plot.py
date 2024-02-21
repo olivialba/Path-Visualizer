@@ -13,14 +13,14 @@ class AlgorithmVisualizer():
         self.plot = self._createPlot()
 
         self.start = None
-        self.start_square = None
+        self.start_drawing_alias = None
         self.start_text = None
 
         self.end = None
-        self.end_square = None
+        self.end_drawing_alias = None
         self.end_text = None
         
-        self.obstacles = []
+        self.obstacles_list = []
         self.array = [
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -48,38 +48,36 @@ class AlgorithmVisualizer():
         dpg.set_axis_limits(axis=y_axis, ymin=0, ymax=self.size)
         return plot
     
-    def errorMessage(self, text):
-        dpg.set_value("error_message_plot", text)
     # Methods
     
     def setStart(self, start: tuple = None):
         if start is None:
-            dpg.delete_item(self.start_square)
-            self.start_square = None
-            self.start = None
             dpg.set_value(self.start_text, "None")
+            dpg.delete_item(self.start_drawing_alias)
+            self.start_drawing_alias = None
+            self.start = None
         else:
-            self.start_square = self.drawSquare(start, self.green, need_return=True)
+            dpg.set_value(self.start_text, start)
+            self.start_drawing_alias = self.drawSquare(start, self.green, need_return=True)
             self.start = start
-            dpg.set_value(self.start_text, self.start)
         
     def setEnd(self, end: tuple = None):
         if end is None:
-            dpg.delete_item(self.end_square)
-            self.end_square = None
-            self.end = None
             dpg.set_value(self.end_text, "None")
+            dpg.delete_item(self.end_drawing_alias)
+            self.end_drawing_alias = None
+            self.end = None
         else:
-            self.end_square = self.drawSquare(end, self.white, need_return=True)
+            dpg.set_value(self.end_text, end)
+            self.end_drawing_alias = self.drawSquare(end, self.white, need_return=True)
             self.end = end
-            dpg.set_value(self.end_text, self.end)
     
-    def setObstacle(self, XY):
-        self.drawSquare(XY, self.gray)
-        self.obstacles.append(XY)
+    def setObstacle(self, xy):
+        self.drawSquare(xy, self.gray)
+        self.obstacles_list.append(xy)
         
     def clearObstacleList(self):
-        self.obstacles.clear()
+        self.obstacles_list.clear()
     
     def mousePlotPosToXY(self, mouse_pos):
         """
@@ -96,23 +94,27 @@ class AlgorithmVisualizer():
         Delete all drawn items in the plot and then draw the `start`, `end` and each `obstacle` in the obstacles list.
         """
         dpg.delete_item(self.plot, children_only=True, slot=2)
-        self.start_square = self.drawSquare(self.start, self.green, need_return=True)
-        self.end_square = self.drawSquare(self.end, self.white, need_return=True)
-        for obstacle_xy in self.obstacles:
+        self.start_drawing_alias = self.drawSquare(self.start, self.green, need_return=True)
+        self.end_drawing_alias = self.drawSquare(self.end, self.white, need_return=True)
+        for obstacle_xy in self.obstacles_list:
             self.drawSquare(obstacle_xy, self.gray)
     
     def drawSquare(self, xy: tuple, colorRGB: list = [0, 0, 0], thick = 0, need_return: bool = None):
         x, y = xy
-        square = dpg.draw_rectangle(parent=self.plot, pmin=[x*5, y*5], pmax=[(x*5)+5, (y*5)+5], color=colorRGB, fill=colorRGB, thickness=thick)
+        x *= 5
+        y *= 5
+        square = dpg.draw_rectangle(parent=self.plot, pmin=[x, y], pmax=[x+5, y+5], color=colorRGB, fill=colorRGB, thickness=thick)
         if need_return:
             return square
         else:
             return None
         
     def drawText(self, text: str, xy: tuple, size: int = 5):
-        x, y = xy
-        dpg.draw_text(parent=self.plot, text=text, pos=[x, y], size=size)
+        dpg.draw_text(parent=self.plot, text=text, pos=xy, size=size)
 
+    def errorMessage(self, text):
+        dpg.set_value("error_message_plot", text)
+        
     # Themes and Handlers
     
     def _setTextValues(self, start_text, end_text):
@@ -140,6 +142,7 @@ class AlgorithmVisualizer():
                 self.setStart(None)
             elif xy == self.end:
                 self.setEnd(None)
+                
             elif self.start is None:
                 self.setStart(xy)
             elif self.end is None:

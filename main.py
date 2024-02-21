@@ -1,7 +1,7 @@
 import dearpygui.dearpygui as dpg
 import DearPyGui_DragAndDrop as dpg_dnd
-from bar_plot import AlgorithmVisualizer
-from algorithms.a_star import a_star
+from algorithm_plot import AlgorithmVisualizer
+from algorithms.a_star import A_star
 
 
 dpg.create_context()
@@ -13,18 +13,22 @@ algorithms = {
     'A*' : 'A* Search',
 }
 
-def start_algorithm(send, app_data, user_data: AlgorithmVisualizer):    
+# Events
+
+def startAlgorithm(send, app_data, user_data: AlgorithmVisualizer):    
     combo_choice = dpg.get_value('algorithm_choice')
     if (combo_choice == algorithms['A*']):
-        a_star(plot=user_data)
+        A_star(plot=user_data)
         
-def reset_plot(send, app_data, user_data: AlgorithmVisualizer):
+def resetPlot(send, app_data, user_data: AlgorithmVisualizer):
     user_data.setStart(None)
     user_data.setEnd(None)
     user_data.clearObstacleList()
     dpg.delete_item(user_data.plot, children_only=True, slot=2)
 
-def start_end_positions(plot: AlgorithmVisualizer):
+# GUI Elements
+
+def start_end_coordinates(plot: AlgorithmVisualizer):
     dpg.add_text("Start Coordinate:", indent=10)
     start_pos_text = dpg.add_text("None", indent=20)
     dpg.add_spacer(height=10)
@@ -50,15 +54,16 @@ with dpg.window(tag="main_window"):
                 dpg.add_combo([text for key, text in algorithms.items()], tag='algorithm_choice')
                 # Start & End XY Buttons
                 dpg.add_spacer(height=10)
-                start_end_positions(plot_canvas)
+                start_end_coordinates(plot_canvas)
                 # Reset Walls & Start
                 dpg.add_spacer(height=10)
                 with dpg.group(horizontal=True):
-                    dpg.add_button(label="Reset Plot", callback=reset_plot, user_data=plot_canvas)
-                    dpg.add_button(label="Start", callback=start_algorithm, user_data=plot_canvas)
+                    dpg.add_button(label="Reset Plot", callback=resetPlot, user_data=plot_canvas)
+                    dpg.add_button(label="Start", callback=startAlgorithm, user_data=plot_canvas)
                 dpg.add_spacer(height=10)
                 dpg.add_text("", tag="error_message_plot", wrap=400)
 
+# Setup
 
 dpg.setup_dearpygui()
 dpg.show_viewport()

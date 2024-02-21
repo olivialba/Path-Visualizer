@@ -1,25 +1,24 @@
-from bar_plot import AlgorithmVisualizer
+from algorithm_plot import AlgorithmVisualizer
 import copy, time
 
 class A_Star_node():
-    def __init__(self, xy: tuple, diagonal: bool, goal_node: tuple, parent: object, start_xy: tuple = False):
+    def __init__(self, xy: tuple, diagonal: bool, goal_node: tuple, parent: object, is_start_node: tuple = False):
         x, y = xy
         self.ids = f"({str(x)}, {str(y)})"
         self.x = x
         self.y = y
         self.xy = xy
-        if start_xy:
+        if is_start_node:
             self.f = 0
         elif not diagonal:
             self.f = 10
         else:
             self.f = 14
-        self.g = self.calculateG(goal_node)
+        self.g = self._calculateG(goal_node)
         self.h = self.f + self.g
-        #print(f"({str(x)}, {str(y)})  " + "H: " + str(self.h))
         self.parent = parent
     
-    def calculateG(self, goal_node):
+    def _calculateG(self, goal_node):
         x, y = goal_node
         g = (abs(self.x - x) + abs(self.y - y)) * 10
         return g
@@ -72,8 +71,7 @@ def generateNeighbors(current_node, goal_xy, open_list, closed_list, array):
                     open_list.append(generated_node)
 
 def findPath(node):
-    path = []
-    path.append(node)
+    path = [node]
     check_node = node.parent
     while (True):
         if check_node is None:
@@ -82,7 +80,7 @@ def findPath(node):
         check_node = check_node.parent
     return path
 
-def a_star(plot: AlgorithmVisualizer):
+def A_star(plot: AlgorithmVisualizer):
     start_xy = plot.start
     goal_xy = plot.end
     
@@ -95,8 +93,9 @@ def a_star(plot: AlgorithmVisualizer):
     else:
         plot.errorMessage("")
     plot.drawAllSquares()
+    
     search_array = copy.deepcopy(plot.array)
-    for obstacle in plot.obstacles:
+    for obstacle in plot.obstacles_list:
         x, y = obstacle
         new_y = (y + 9 - (2 * y))
         search_array[new_y][x] = 1
@@ -108,19 +107,22 @@ def a_star(plot: AlgorithmVisualizer):
     path = []
     final_path = ""
     
-    start_node = A_Star_node(xy=start_xy, diagonal=False, goal_node=goal_xy, parent=None, start_xy=True)
+    start_node = A_Star_node(xy=start_xy, diagonal=False, goal_node=goal_xy, parent=None, is_start_node=True)
     open_list.append(start_node)
     
     while(True):
         best_node = getBestNode(open_list)
         if best_node is None:
+            plot.errorMessage(f"Solution doesn't exist")
             print("Solution doesn't exist")
             return
         open_list.remove(best_node)
         current_node = best_node
+        
         if current_node.xy == goal_xy: # Arrived at goal
             print("Found Goal!")
             break
+        
         generateNeighbors(current_node, goal_xy, open_list, closed_list, search_array)
         closed_list[current_node.ids] = current_node
     
@@ -131,7 +133,7 @@ def a_star(plot: AlgorithmVisualizer):
         final_path += " -> " if node != path[-1] else ""
         if (num + 1) % 3 == 0:
             final_path += "\n"
-        time.sleep(0.5)
+        time.sleep(0.3)
         if (node.xy != start_xy and node.xy != goal_xy):
             plot.drawSquare(node.xy, plot.blue)
     plot.errorMessage(f"Path:\n{final_path}")
