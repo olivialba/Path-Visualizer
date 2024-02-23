@@ -57,6 +57,8 @@ class AlgorithmVisualizer():
             self.start_drawing_alias = None
             self.start = None
         else:
+            if self.array[self.getReverseY(start[1])][start[0]] == 1:
+                return
             dpg.set_value(self.start_text, start)
             self.start_drawing_alias = self.drawSquare(start, self.green, need_return=True)
             self.start = start
@@ -68,6 +70,8 @@ class AlgorithmVisualizer():
             self.end_drawing_alias = None
             self.end = None
         else:
+            if self.array[self.getReverseY(end[1])][end[0]] == 1:
+                return
             dpg.set_value(self.end_text, end)
             self.end_drawing_alias = self.drawSquare(end, self.white, need_return=True)
             self.end = end
@@ -95,10 +99,12 @@ class AlgorithmVisualizer():
             for num_y, y in enumerate(self.array):
                 for num_x, x in enumerate(y):
                     if x == 1:
-                        new_y = (num_y + (self.size - 1) - (2 * num_y))
-                        self.drawSquare((num_x, new_y), self.gray)
+                        self.drawSquare((num_x, self.getReverseY(num_y)), self.gray)
         else:
             self.errorMessage("* Error Maze: Plot size < 6")
+    
+    def getReverseY(self, y: int):
+        return (y + (self.size - 1) - (2 * y))
     
     def resetPlot(self):
         self.setStart(None)
