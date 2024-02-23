@@ -130,7 +130,7 @@ def A_star(plot: AlgorithmVisualizer):
     path = findPath(current_node)
     path.reverse()
     for num, node in enumerate(path):
-        final_path += f"({str(node.x)}, {str(node.y)})"
+        final_path += f"({str(node.x)},{str(node.y)})"
         final_path += " -> " if node != path[-1] else ""
         if (num + 1) % 3 == 0:
             final_path += "\n"

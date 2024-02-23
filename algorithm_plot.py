@@ -1,5 +1,5 @@
 import dearpygui.dearpygui as dpg
-from maze_gen import maze_gen
+from algorithms.maze_gen import maze_gen
 
 class AlgorithmVisualizer():
     blue = (30, 144, 255)
@@ -73,6 +73,8 @@ class AlgorithmVisualizer():
             self.end = end
     
     def setObstacle(self, xy: tuple):
+        if (xy == self.start or xy == self.end):
+            return
         self.drawSquare(xy, self.gray)
         x, y = xy
         new_y = (y + (self.size - 1) - (2 * y))
@@ -87,12 +89,16 @@ class AlgorithmVisualizer():
                 
     def setMaze(self):
         self.resetPlot()
-        self.array = maze_gen(self)
-        for num_y, y in enumerate(self.array):
-            for num_x, x in enumerate(y):
-                if x == 1:
-                    new_y = (num_y + (self.size - 1) - (2 * num_y))
-                    self.drawSquare((num_x, new_y), self.gray)       
+        maze = maze_gen(self)
+        if maze:
+            self.array = maze
+            for num_y, y in enumerate(self.array):
+                for num_x, x in enumerate(y):
+                    if x == 1:
+                        new_y = (num_y + (self.size - 1) - (2 * num_y))
+                        self.drawSquare((num_x, new_y), self.gray)
+        else:
+            self.errorMessage("* Error Maze: Plot size < 6")
     
     def resetPlot(self):
         self.setStart(None)

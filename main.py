@@ -6,7 +6,7 @@ from algorithms.a_star import A_star
 
 dpg.create_context()
 dpg_dnd.initialize()
-dpg.create_viewport(title='Search Visualizer', height=560, width=800)
+dpg.create_viewport(title='Search Visualizer', height=560, width=815)
 
 algorithms = {
     'A*' : 'A* Search',
@@ -38,13 +38,14 @@ def plot_size(plot: AlgorithmVisualizer):
         dpg.add_button(label="Change Plot", callback=changePlotSize, user_data=plot)
     dpg.add_spacer(height=15)
     with dpg.group():
+        dpg.add_text("Maze:")
         dpg.add_button(label="Generate Maze", callback=generateMaze, user_data=plot)
 
 def start_end_coordinates(plot: AlgorithmVisualizer):
     dpg.add_spacer(height=15)
     dpg.add_text("Start Coordinate:", indent=10)
     start_pos_text = dpg.add_text("None", indent=20)
-    dpg.add_spacer(height=10)
+    dpg.add_spacer()
     dpg.add_text("End Coordinate:", indent=10)
     end_pos_text = dpg.add_text("None", indent=20)
     
@@ -76,6 +77,7 @@ with dpg.window(tag="main_window"):
                     dpg.add_button(label="Start", callback=startAlgorithm, user_data=plot_canvas)
                 dpg.add_spacer(height=10)
                 dpg.add_text("", tag="error_message_plot", wrap=400)
+                dpg.add_spacer(height=10)
 
 
 # Setup
