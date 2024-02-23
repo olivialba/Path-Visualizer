@@ -1,7 +1,7 @@
 from algorithm_plot import AlgorithmVisualizer
 import copy, time
 
-side_of_array = 9
+side_of_array = 0
 
 class A_Star_node():
     def __init__(self, xy: tuple, diagonal: bool, goal_node: tuple, parent: object, is_start_node: tuple = False):
@@ -94,16 +94,12 @@ def A_star(plot: AlgorithmVisualizer):
         return
     else:
         plot.errorMessage("")
-    plot.drawAllSquares()
+    #plot.drawAllSquares()
     
     global side_of_array
     side_of_array = plot.size - 1
     
     search_array = copy.deepcopy(plot.array)
-    for obstacle in plot.obstacles_list:
-        x, y = obstacle
-        new_y = (y + side_of_array - (2 * y))
-        search_array[new_y][x] = 1
     
     current_node = None
     open_list = []
@@ -138,7 +134,7 @@ def A_star(plot: AlgorithmVisualizer):
         final_path += " -> " if node != path[-1] else ""
         if (num + 1) % 3 == 0:
             final_path += "\n"
-        time.sleep(0.3)
+        time.sleep(0.05)
         if (node.xy != start_xy and node.xy != goal_xy):
             plot.drawSquare(node.xy, plot.blue)
     plot.errorMessage(f"Path:\n{final_path}")

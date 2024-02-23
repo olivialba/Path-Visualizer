@@ -26,6 +26,9 @@ def changePlotSize(send, app_data, user_data: AlgorithmVisualizer):
     user_data.setSizeArray(dpg.get_value("plot_size"))
     user_data.resetPlot()
 
+def generateMaze(send, app_data, user_data: AlgorithmVisualizer):
+    user_data.setMaze()
+
 # GUI Elements
 
 def plot_size(plot: AlgorithmVisualizer):
@@ -33,6 +36,9 @@ def plot_size(plot: AlgorithmVisualizer):
     with dpg.group():
         dpg.add_slider_int(tag="plot_size", min_value=2, max_value=50, clamped=True, default_value=20)
         dpg.add_button(label="Change Plot", callback=changePlotSize, user_data=plot)
+    dpg.add_spacer(height=15)
+    with dpg.group():
+        dpg.add_button(label="Generate Maze", callback=generateMaze, user_data=plot)
 
 def start_end_coordinates(plot: AlgorithmVisualizer):
     dpg.add_spacer(height=15)
@@ -71,8 +77,8 @@ with dpg.window(tag="main_window"):
                 dpg.add_spacer(height=10)
                 dpg.add_text("", tag="error_message_plot", wrap=400)
 
+
 # Setup
-#dpg.show_style_editor()
 
 dpg.setup_dearpygui()
 dpg.show_viewport()

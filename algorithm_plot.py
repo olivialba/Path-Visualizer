@@ -1,4 +1,5 @@
 import dearpygui.dearpygui as dpg
+from maze_gen import maze_gen
 
 class AlgorithmVisualizer():
     blue = (30, 144, 255)
@@ -28,8 +29,7 @@ class AlgorithmVisualizer():
         self._createArray()
         self.drawGridlines()
         self._createTheme()
-        self._clickHandler()
-        
+        self._clickHandler()        
         
     def _createPlot(self):
         plot = dpg.add_plot(label="Algorithm",width=500, height=500, 
@@ -74,7 +74,9 @@ class AlgorithmVisualizer():
     
     def setObstacle(self, xy: tuple):
         self.drawSquare(xy, self.gray)
-        self.obstacles_list.append(xy)
+        x, y = xy
+        new_y = (y + (self.size - 1) - (2 * y))
+        self.array[new_y][x] = 1
         
     def setSizeArray(self, size: int):
         self.size = size
@@ -83,11 +85,16 @@ class AlgorithmVisualizer():
     def setSquareSide(self, size: int):
         self.square = size
                 
-    def clearObstacleList(self):
-        self.obstacles_list.clear()
+    def setMaze(self):
+        self.resetPlot()
+        self.array = maze_gen(self)
+        for num_y, y in enumerate(self.array):
+            for num_x, x in enumerate(y):
+                if x == 1:
+                    new_y = (num_y + (self.size - 1) - (2 * num_y))
+                    self.drawSquare((num_x, new_y), self.gray)       
     
     def resetPlot(self):
-        self.clearObstacleList()
         self.setStart(None)
         self.setEnd(None)
         dpg.delete_item(self.plot, children_only=True, slot=2)
@@ -115,10 +122,11 @@ class AlgorithmVisualizer():
             self.start_drawing_alias = self.drawSquare(self.start, self.green, need_return=True)
         if self.end:
             self.end_drawing_alias = self.drawSquare(self.end, self.white, need_return=True)
-        for obstacle in self.obstacles_list:
-            self.drawSquare(obstacle, self.gray)
     
-    def drawSquare(self, xy: tuple, colorRGB: list = [0, 0, 0], thick = 0, need_return: bool = None):
+    def drawWall(self, xy: tuple):
+        self.drawSquare(xy, self.gray)
+    
+    def drawSquare(self, xy: tuple, colorRGB: list = [0, 0, 0], thick = 0, need_return: bool = False):
         x, y = xy
         x *= self.square
         y *= self.square
