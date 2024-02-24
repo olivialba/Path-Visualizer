@@ -38,7 +38,7 @@ def showHeuristic(node, plot):
     x_t, y_t = node.xy
     plot.drawText(node.f, (x_t+0.05, y_t+0.95), size=0.25, color=(255,0,0))
     plot.drawText(node.g, (x_t+0.55, y_t+0.95), size=0.25, color=(191, 64, 191))
-    plot.drawText(node.h, (x_t+0.2, y_t+0.4), size=0.4, color=(255,69,0))
+    plot.drawText(node.h, (x_t+0.1, y_t+0.55), size=0.5, color=(255,69,0))
 
 def getBestNode(open_list):
     if not open_list:
@@ -91,7 +91,7 @@ def findPath(node):
         check_node = check_node.parent
     return path
 
-def A_star(plot: AlgorithmVisualizer, show_heuristic: bool=True):
+def A_star(plot: AlgorithmVisualizer, show_heuristic: bool=False):
     start_xy = plot.start
     goal_xy = plot.end
     

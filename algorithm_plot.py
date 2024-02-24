@@ -10,7 +10,7 @@ class AlgorithmVisualizer():
     white = (255, 250, 250)
     
     def __init__(self):
-        self.size = 9
+        self.size = 15
         self.square = 1
         self.plot = self._createPlot()
 
