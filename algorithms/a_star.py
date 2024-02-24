@@ -4,21 +4,24 @@ import copy, time
 side_of_array = 0
 
 class A_Star_node():
-    def __init__(self, xy: tuple, diagonal: bool, goal_node: tuple, parent: object, is_start_node: tuple = False):
+    def __init__(self, xy: tuple, diagonal: bool, goal_node: tuple, parent: object):
+        self.parent = parent
+        self._setCoordinates(xy)
+        if parent is None:
+            self.f = 0
+        elif not diagonal:
+            self.f = 10 + self.parent.f
+        else:
+            self.f = 14 + self.parent.f
+        self.g = self._calculateG(goal_node)
+        self.h = self.f + self.g
+    
+    def _setCoordinates(self, xy):
         x, y = xy
         self.ids = f"({str(x)}, {str(y)})"
         self.x = x
         self.y = y
         self.xy = xy
-        if is_start_node:
-            self.f = 0
-        elif not diagonal:
-            self.f = 10
-        else:
-            self.f = 14
-        self.g = self._calculateG(goal_node)
-        self.h = self.f + self.g
-        self.parent = parent
     
     def _calculateG(self, goal_node):
         x, y = goal_node
@@ -30,6 +33,12 @@ def printArray(array):
         for element in row:
             print(element, end=" ")  # Use end=" " to print elements in the same row
         print()
+
+def showHeuristic(node, plot):
+    x_t, y_t = node.xy
+    plot.drawText(node.f, (x_t+0.05, y_t+0.95), size=0.25, color=(255,0,0))
+    plot.drawText(node.g, (x_t+0.55, y_t+0.95), size=0.25, color=(191, 64, 191))
+    plot.drawText(node.h, (x_t+0.2, y_t+0.4), size=0.4, color=(255,69,0))
 
 def getBestNode(open_list):
     if not open_list:
@@ -51,7 +60,7 @@ def translateXYtoArray(xy: tuple, YX: bool = False) -> tuple:
     else:
         return (x, new_y)
 
-def generateNeighbors(current_node, goal_xy, open_list, closed_list, array):
+def generateNeighbors(current_node, goal_xy, open_list, closed_list, array, plot: AlgorithmVisualizer=None):
     i, j = translateXYtoArray(current_node.xy, YX=True) 
     for y in range(-1, 2):
         for x in range(-1, 2):
@@ -82,7 +91,7 @@ def findPath(node):
         check_node = check_node.parent
     return path
 
-def A_star(plot: AlgorithmVisualizer):
+def A_star(plot: AlgorithmVisualizer, show_heuristic: bool=True):
     start_xy = plot.start
     goal_xy = plot.end
     
@@ -94,7 +103,6 @@ def A_star(plot: AlgorithmVisualizer):
         return
     else:
         plot.errorMessage("")
-    #plot.drawAllSquares()
     
     global side_of_array
     side_of_array = plot.size - 1
@@ -108,7 +116,7 @@ def A_star(plot: AlgorithmVisualizer):
     path = []
     final_path = ""
     
-    start_node = A_Star_node(xy=start_xy, diagonal=False, goal_node=goal_xy, parent=None, is_start_node=True)
+    start_node = A_Star_node(xy=start_xy, diagonal=False, goal_node=goal_xy, parent=None)
     open_list.append(start_node)
     
     while(True):
@@ -121,10 +129,11 @@ def A_star(plot: AlgorithmVisualizer):
         current_node = best_node
         
         if current_node.xy == goal_xy: # Arrived at goal
+            closed_list[current_node.ids] = current_node
             print("Found Goal!")
             break
         
-        generateNeighbors(current_node, goal_xy, open_list, closed_list, search_array)
+        generateNeighbors(current_node, goal_xy, open_list, closed_list, search_array, plot)
         closed_list[current_node.ids] = current_node
     
     path = findPath(current_node)
@@ -138,4 +147,9 @@ def A_star(plot: AlgorithmVisualizer):
         if (node.xy != start_xy and node.xy != goal_xy):
             plot.drawSquare(node.xy, plot.blue)
     plot.errorMessage(f"Path:\n{final_path}")
-    print(final_path)
+
+    if show_heuristic:
+        for node in open_list:
+            showHeuristic(node, plot)
+        for key, node in closed_list.items():
+            showHeuristic(node, plot)

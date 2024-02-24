@@ -10,7 +10,7 @@ class AlgorithmVisualizer():
     white = (255, 250, 250)
     
     def __init__(self):
-        self.size = 20
+        self.size = 9
         self.square = 1
         self.plot = self._createPlot()
 
@@ -149,8 +149,8 @@ class AlgorithmVisualizer():
         else:
             return None
         
-    def drawText(self, text: str, xy: tuple, size: int = 5):
-        dpg.draw_text(parent=self.plot, text=text, pos=xy, size=size)
+    def drawText(self, text: str, xy: tuple, color: tuple=(255, 255, 255, 255), size: int = 5):
+        dpg.draw_text(parent=self.plot, text=text, pos=xy, size=size, color=color)
 
     def drawGridlines(self, delete: bool=True):
         if delete:
