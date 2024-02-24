@@ -113,6 +113,7 @@ class AlgorithmVisualizer():
         dpg.set_axis_limits(axis=self.x_axis, ymin=0, ymax=self.size)
         dpg.set_axis_limits(axis=self.y_axis, ymin=0, ymax=self.size)
         self.drawGridlines(delete=False)
+        self._createArray()
     
     def mousePlotPosToXY(self, mouse_pos):
         """

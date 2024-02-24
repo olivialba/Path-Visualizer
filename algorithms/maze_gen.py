@@ -1,16 +1,8 @@
 import random
-from random import randrange
-from colorama import init, Fore
 
 cell = 0
 wall_cell = 1
 unv = 5
-
-class Temp():
-    def __init__(self):
-        self.size = 20
-    def resetPlot():
-        pass
 
 def init_maze(size: int):
     maze = []
@@ -19,17 +11,6 @@ def init_maze(size: int):
         for x in range(size):
             maze[y].append(unv)
     return maze
-
-def print_maze(maze):
-    for i in range(len(maze)):
-        for j in range(len(maze[0])):
-            if maze[i][j] == 5:
-                print(Fore.WHITE, f'{maze[i][j]}', end="")
-            elif maze[i][j] == 0:
-                print(Fore.GREEN, f'{maze[i][j]}', end="")
-            else:
-                print(Fore.RED, f'{maze[i][j]}', end="")
-        print()
 
 def maze_gen(plot):
     global cell, wall, unv
