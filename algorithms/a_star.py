@@ -7,14 +7,19 @@ class A_Star_node():
     def __init__(self, xy: tuple, diagonal: bool, goal_node: tuple, parent: object):
         self.parent = parent
         self._setCoordinates(xy)
-        if parent is None:
-            self.f = 0
-        elif not diagonal:
-            self.f = 10 + self.parent.f
-        else:
-            self.f = 14 + self.parent.f
+        self.f = self._calculateF(diagonal)
         self.g = self._calculateG(goal_node)
         self.h = self.f + self.g
+        
+    def checkNewF(self, currentNode, diagonal):
+        if diagonal:
+            newF = currentNode.f + 14
+        else:
+            newF = currentNode.f + 10
+        if newF < self.f:
+            self.parent = currentNode
+            self.f = newF
+            self.h = self.f + self.g
     
     def _setCoordinates(self, xy):
         x, y = xy
@@ -22,6 +27,15 @@ class A_Star_node():
         self.x = x
         self.y = y
         self.xy = xy
+        
+    def _calculateF(self, diagonal):
+        if self.parent is None:
+            f = 0
+        elif not diagonal:
+            f = 10 + self.parent.f
+        else:
+            f = 14 + self.parent.f
+        return f
     
     def _calculateG(self, goal_node):
         x, y = goal_node
@@ -70,10 +84,15 @@ def generateNeighbors(current_node, goal_xy, open_list, closed_list, array, plot
             x_axis = j + x
             if y_axis < 0 or x_axis < 0 or y_axis > side_of_array or x_axis > side_of_array:
                 continue
-            if array[y_axis][x_axis] == 0:
+            if array[y_axis][x_axis] == 0 or array[y_axis][x_axis] == 2:
                 diagonal = False
                 if abs(x + y) == 2 or x + y == 0:
                     diagonal = True
+                if array[y_axis][x_axis] == 2:
+                    for node in open_list:
+                        if node.xy == translateXYtoArray(xy=(x_axis, y_axis)):
+                            node.checkNewF(current_node, diagonal)
+                    continue
                 generated_node = A_Star_node(xy=(translateXYtoArray((x_axis, y_axis), YX=False)), diagonal=diagonal, goal_node=goal_xy, parent=current_node)
                 if closed_list.get(generated_node.ids):
                     continue
